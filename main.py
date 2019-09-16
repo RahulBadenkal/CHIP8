@@ -1,4 +1,32 @@
 from chip8 import Chip8State
+import pygame
+import sys
+
+
+def update_keypad(chip8, keys):
+    chip8.keypad[0] = keys[pygame.K_1]
+    chip8.keypad[1] = keys[pygame.K_2]
+    chip8.keypad[2] = keys[pygame.K_3]
+    chip8.keypad[3] = keys[pygame.K_4]
+    chip8.keypad[4] = keys[pygame.K_q]
+    chip8.keypad[5] = keys[pygame.K_w]
+    chip8.keypad[6] = keys[pygame.K_e]
+    chip8.keypad[7] = keys[pygame.K_r]
+    chip8.keypad[8] = keys[pygame.K_a]
+    chip8.keypad[9] = keys[pygame.K_s]
+    chip8.keypad[10] = keys[pygame.K_d]
+    chip8.keypad[11] = keys[pygame.K_f]
+    chip8.keypad[12] = keys[pygame.K_z]
+    chip8.keypad[13] = keys[pygame.K_x]
+    chip8.keypad[14] = keys[pygame.K_c]
+    chip8.keypad[15] = keys[pygame.K_v]
+
+
+def refresh_screen(chip8, buffer, color):
+    for x in range(chip8.width):
+        for y in range(chip8.height):
+            if chip8.display[x][y] == 1:
+                buffer.set_at((x, y), color)
 
 
 def main():
@@ -10,120 +38,56 @@ def main():
     # Creating an instance of Chip8
     chip8 = Chip8State()
 
-    # TODO: Set up display and input systems using pygame
+    # Set initial Chip8 states
+    chip8.initialise()
 
-    # TODO: Set initial Chip8 states
+    # Load the ROM in memory
+    chip8.load_rom(rom_bytes)
 
+    # Set up display and input systems using pygame
+    pygame.init()
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    scale = 20
+    clock = pygame.time.Clock()
+    resolution = (chip8.width, chip8.height)
+    buf = pygame.Surface(resolution)
+    scaled_res = (resolution[0] * scale, resolution[1] * scale)
+    window = pygame.display.set_mode(scaled_res)
+    pygame.display.set_caption("CHIP8")
 
-    # TODO: Load the ROM in memory
-
-    # TODO: Emulate cycles
+    # Emulate cycles
     while True:
-        # Check if exit game event is called in pygame
+        clock.tick(2)  # Execute for loop n times per second
+        events = pygame.event.get()
+
+        # Check if game is closed
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.display.quit()
+                pygame.quit()
+                sys.exit()
 
         # Read the key pressed info from pygame and change the keypad state
+        keys = pygame.key.get_pressed()
+        update_keypad(chip8, keys)
 
         # Emulate a cpu cycle (fetch-decode-execute)
+        chip8.cpu_cycle()
 
         # Refresh the screen using pygame
+        refresh_screen(chip8, buf, color=white)
 
-        # Render Sound using pygame
-
-        break
+        # TODO: What does this do
+        pygame.transform.scale(buf, scaled_res, window)
+        buf.fill(black)
+        pygame.display.flip()
+        clock.tick()
 
 
 if __name__ == "__main__":
-    # main()
+    main()
 
-    # Reading the rom data from file
-    filename = "/home/rahul/projects/CHIP8/ROMS/PONG"
-    with open(filename, 'rb') as f:
-        rom_bytes = f.read()
-
-    # All instructions are 2 bytes long.
-    # Read 1 byte
-    # Read the next byte
-    # Join them
-    # Use if to check which instruction it is
-    pc = 0
-    inst_name = None
-    while pc < len(rom_bytes):
-        opcode = (rom_bytes[pc] << 8) | rom_bytes[pc+1]
-
-        if opcode == 0x00E0:
-            inst_name = 'CLS'
-        elif opcode == 0x00EE:
-            inst_name = 'RET'
-        elif opcode & 0xF000 == 0x0000:
-            inst_name = 'SYS'
-        elif opcode & 0xF000 == 0x1000:
-            inst_name = 'JP'
-        elif opcode & 0xF000 == 0x2000:
-            inst_name = 'CALL'
-        elif opcode & 0xF000 == 0x3000:
-            inst_name = 'SE_Vx'
-        elif opcode & 0xF000 == 0x4000:
-            inst_name = 'SNE_Vx'
-        elif opcode & 0xF00F == 0x5000:
-            inst_name = 'SE_Vy_Vy'
-        elif opcode & 0xF000 == 0x6000:
-            inst_name = 'LD_Vx'
-        elif opcode & 0xF000 == 0x7000:
-            inst_name = 'ADD_Vx'
-        elif opcode & 0xF00F == 0x8000:
-            inst_name = 'LD_Vx_Vy'
-        elif opcode & 0xF00F == 0x8001:
-            inst_name = 'OR_Vx_Vy'
-        elif opcode & 0xF00F == 0x8002:
-            inst_name = 'AND_Vx_Vy'
-        elif opcode & 0xF00F == 0x8003:
-            inst_name = 'XOR_Vx_Vy'
-        elif opcode & 0xF00F == 0x8004:
-            inst_name = 'ADD_Vx_Vy'
-        elif opcode & 0xF00F == 0x8005:
-            inst_name = 'SUB_Vx_Vy'
-        elif opcode & 0xF00F == 0x8006:
-            inst_name = 'SHR_Vx_Vy'
-        elif opcode & 0xF00F == 0x8007:
-            inst_name = 'SUBN_Vx_Vy'
-        elif opcode & 0xF00F == 0x800E:
-            inst_name = 'SHL_Vx_Vy'
-        elif opcode & 0xF00F == 0x9000:
-            inst_name = 'SNE_Vx_Vy'
-        elif opcode & 0xF000 == 0xA000:
-            inst_name = 'LD_I'
-        elif opcode & 0xF000 == 0xB000:
-            inst_name = 'JP_V0'
-        elif opcode & 0xF000 == 0xC000:
-            inst_name = 'RND_Vx'
-        elif opcode & 0xF000 == 0xD000:
-            inst_name = 'DRW_Vx_Vy'
-        elif opcode & 0xF0FF == 0xE09E:
-            inst_name = 'SKP_Vx'
-        elif opcode & 0xF0FF == 0xE0A1:
-            inst_name = 'SKNP_Vx'
-        elif opcode & 0xF0FF == 0xF007:
-            inst_name = 'LD_Vx_DT'
-        elif opcode & 0xF0FF == 0xF00A:
-            inst_name = 'LD_Vx_K'
-        elif opcode & 0xF0FF == 0xF015:
-            inst_name = 'LD_DT_Vx'
-        elif opcode & 0xF0FF == 0xF018:
-            inst_name = 'LD_ST_Vx'
-        elif opcode & 0xF0FF == 0xF01E:
-            inst_name = 'ADD_I_Vx'
-        elif opcode & 0xF0FF == 0xF029:
-            inst_name = 'LD_F_Vx'
-        elif opcode & 0xF0FF == 0xF033:
-            inst_name = 'LD_B_Vx'
-        elif opcode & 0xF0FF == 0xF055:
-            inst_name = 'LD_I_Vx'
-        elif opcode & 0xF0FF == 0xF065:
-            inst_name = 'LD_Vx_I'
-        else:
-            raise ValueError('opcode {} at pc {} is not a valid instruction'.format(opcode, pc))
-        print("{}. {}".format(pc, inst_name))
-        pc += 2
 
 
 
