@@ -49,13 +49,16 @@ class Chip8State:
         self.gen_regs = [0]*16
         self.index_reg = 0
         self.pc_reg = 512
-        self.sp_reg = 0
+        self.sp_reg = -1
 
         self.stack = [0]*16
 
         self.memory = [0] * 4096
 
         self.keypad = [0]*16
+
+        self.delay_timer = 0
+        self.sound_timer = 0
 
         self.width, self.height = 64, 32  # in pixels
         self.display = [[0]*self.height for _ in range(self.width)]
@@ -96,7 +99,7 @@ class Chip8State:
 
         # Decode
         instruction_name = self.get_instruction_name(self.opcode)
-        print('{}: {}'.format(self.pc_reg, instruction_name))
+        # print('{}: {}, {}'.format(self.pc_reg, hex(self.opcode), instruction_name))
 
         # Execute instruction and move pc
         self.execute_instruction(instruction_name)
@@ -200,7 +203,6 @@ class Chip8State:
             return
 
         def _ret():
-            # TODO: Not Correct
             # Not incrementing pc by 2
             self.pc_reg = self.stack[self.sp_reg]
             self.sp_reg -= 1
@@ -218,7 +220,7 @@ class Chip8State:
         def _call():
             # Not incrementing pc by 2
             self.sp_reg += 1
-            self.stack[self.sp_reg] = self.pc_reg
+            self.stack[self.sp_reg] = self.pc_reg + 2
             self.pc_reg = self.opcode & 0x0FFF
             return
 

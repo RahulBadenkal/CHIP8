@@ -510,7 +510,7 @@ class CPU:
 
 
 def main():
-    dir = "/home/rahul/projects/CHIP8/ROMS/PONG"
+    dir = "/home/rahul/projects/CHIP8/ROMS/PongForOne.ch8"
     rom = open(dir, "rb")
     cpu = CPU(rom)
     res = (cpu.gfx_w, cpu.gfx_h)

@@ -22,16 +22,18 @@ def update_keypad(chip8, keys):
     chip8.keypad[15] = keys[pygame.K_v]
 
 
-def refresh_screen(chip8, buffer, color):
+def refresh_screen(chip8, buffer, white, black):
     for x in range(chip8.width):
         for y in range(chip8.height):
             if chip8.display[x][y] == 1:
-                buffer.set_at((x, y), color)
+                buffer.set_at((x, y), white)
+            else:
+                buffer.set_at((x, y), black)
 
 
 def main():
     # Reading the rom data from file
-    filename = "/home/rahul/projects/CHIP8/ROMS/PONG"
+    filename = "/home/rahul/projects/CHIP8/ROMS/PongForOne.ch8"
     with open(filename, 'rb') as f:
         rom_bytes = f.read()
 
@@ -57,9 +59,20 @@ def main():
     pygame.display.set_caption("CHIP8")
 
     # Emulate cycles
+    x = 0
+    y = 0
+    import time
+    time_start = time.time()
     while True:
-        clock.tick(2)  # Execute for loop n times per second
+        x += 1
+        y += 1
+        clock.tick()  # Execute for loop n times per second
         events = pygame.event.get()
+
+        # if x >= 10000:
+        #     pygame.display.quit()
+        #     pygame.quit()
+        #     sys.exit()
 
         # Check if game is closed
         for event in events:
@@ -76,7 +89,7 @@ def main():
         chip8.cpu_cycle()
 
         # Refresh the screen using pygame
-        refresh_screen(chip8, buf, color=white)
+        refresh_screen(chip8, buf, white, black)
 
         # TODO: What does this do
         pygame.transform.scale(buf, scaled_res, window)
@@ -84,9 +97,22 @@ def main():
         pygame.display.flip()
         clock.tick()
 
+        # Decrement the delay timer
+        if chip8.delay_timer > 0:
+            chip8.delay_timer += -1
+
+        # if time.time() - time_start > 1:
+        #     print(y)
+        #     y = 0
+        #     time_start = time.time()
+
 
 if __name__ == "__main__":
+    # For pong multiplayer
+    # For left player: 2-> Move up, q-> Move down,
+    # For right player: z-> Move up, x->Move down
     main()
+
 
 
 
