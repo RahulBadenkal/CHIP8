@@ -99,7 +99,7 @@ class Chip8State:
 
         # Decode
         instruction_name = self.get_instruction_name(self.opcode)
-        # print('{}: {}, {}'.format(self.pc_reg, hex(self.opcode), instruction_name))
+        print('{}: {}, {}'.format(self.pc_reg, hex(self.opcode), instruction_name))
 
         # Execute instruction and move pc
         self.execute_instruction(instruction_name)

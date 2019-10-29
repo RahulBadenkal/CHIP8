@@ -1,2 +1,9 @@
+# Python virtual env
 /venv
+
+# Reference files and other info
+/others
+
+# ROM files for various programs
+/ROMS
 

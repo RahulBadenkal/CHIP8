@@ -1,6 +1,7 @@
 from chip8 import Chip8State
 import pygame
 import sys
+import os
 
 
 def update_keypad(chip8, keys):
@@ -33,8 +34,11 @@ def refresh_screen(chip8, buffer, white, black):
 
 def main():
     # Reading the rom data from file
-    filename = "/home/rahul/projects/CHIP8/ROMS/PongForOne.ch8"
-    with open(filename, 'rb') as f:
+    filename = 'PongForOne.ch8'
+
+    basedir = os.path.dirname(__file__)
+    filepath = os.path.join(basedir, 'ROMS', filename)
+    with open(filepath, 'rb') as f:
         rom_bytes = f.read()
 
     # Creating an instance of Chip8
